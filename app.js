@@ -85,7 +85,7 @@ async function extractData() {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,6 +107,7 @@ async function extractData() {
 {"rows": [{"name": "...", "paid": "...", "notes": "...", "extra": "...", "paidFromExtra": "..."}]}
 
 إذا كانت خانة فارغة اتركها نص فارغ "".
+مهم جداً: اكتب الأرقام بالأرقام الإنجليزية (0-9) وليس العربية (٠-٩).
 أرجع JSON فقط بدون أي شرح أو نص إضافي.`
               },
               {
