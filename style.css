@@ -1,0 +1,327 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  direction: rtl;
+  text-align: right;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 1.5rem;
+  color: #1a1a2e;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
+
+/* Settings Panel */
+.settings-panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.settings-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.settings-inputs {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-inputs label {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.settings-inputs input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  direction: ltr;
+  text-align: left;
+}
+
+.settings-inputs button {
+  align-self: flex-start;
+  padding: 8px 20px;
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Cards */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+/* Upload Area */
+.upload-area {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.upload-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 14px;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  background: #fafafa;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.upload-btn:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.upload-btn .icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.upload-btn input {
+  display: none;
+}
+
+/* Image Preview */
+.preview-container {
+  margin-top: 12px;
+  display: none;
+}
+
+.preview-container img {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+/* Extract Button */
+.extract-btn {
+  width: 100%;
+  padding: 14px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background 0.2s;
+}
+
+.extract-btn:hover {
+  background: #2563eb;
+}
+
+.extract-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Date Input */
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.date-row label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.date-row input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+/* Data Table */
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+th {
+  background: #f1f5f9;
+  padding: 10px 8px;
+  border: 1px solid #e2e8f0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+td {
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+td input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  text-align: right;
+  padding: 4px;
+  direction: rtl;
+}
+
+td input:focus {
+  outline: 2px solid #3b82f6;
+  border-radius: 4px;
+  background: #eff6ff;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.add-row-btn {
+  margin-top: 8px;
+  padding: 8px 16px;
+  background: #f1f5f9;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Submit Button */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover {
+  background: #15803d;
+}
+
+.submit-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Status Messages */
+.status {
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 12px;
+  display: none;
+  font-weight: 500;
+}
+
+.status.success {
+  background: #dcfce7;
+  color: #166534;
+  display: block;
+}
+
+.status.error {
+  background: #fee2e2;
+  color: #991b1b;
+  display: block;
+}
+
+.status.loading {
+  background: #dbeafe;
+  color: #1e40af;
+  display: block;
+}
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #ccc;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Hidden */
+.hidden {
+  display: none !important;
+}

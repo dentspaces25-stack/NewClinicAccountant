@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>محاسب العيادة</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>محاسب العيادة</h1>
+    <p class="subtitle">صور الدفتر واحفظ البيانات في Google Sheets</p>
+
+    <!-- Settings -->
+    <details class="settings-panel">
+      <summary>الإعدادات</summary>
+      <div class="settings-inputs">
+        <div>
+          <label>مفتاح Gemini API:</label>
+          <input type="password" id="geminiKeyInput" placeholder="AIza...">
+        </div>
+        <div>
+          <label>رابط Google Apps Script:</label>
+          <input type="url" id="appsScriptUrlInput" placeholder="https://script.google.com/macros/s/...">
+        </div>
+        <button onclick="saveSettings()">حفظ الإعدادات</button>
+        <div id="settingsStatus" class="status"></div>
+      </div>
+    </details>
+
+    <!-- Upload Card -->
+    <div class="card">
+      <h2>رفع صورة الدفتر</h2>
+      <div class="upload-area">
+        <label class="upload-btn">
+          <span class="icon">📷</span>
+          التقاط صورة
+          <input type="file" accept="image/*" capture="environment" onchange="handleImageUpload(this)">
+        </label>
+        <label class="upload-btn">
+          <span class="icon">🖼️</span>
+          اختيار من المعرض
+          <input type="file" accept="image/*" onchange="handleImageUpload(this)">
+        </label>
+      </div>
+
+      <div id="previewContainer" class="preview-container">
+        <img id="imagePreview" alt="معاينة الصورة">
+      </div>
+
+      <button id="extractBtn" class="extract-btn" onclick="extractData()" disabled>
+        استخراج البيانات
+      </button>
+      <div id="extractStatus" class="status"></div>
+    </div>
+
+    <!-- Results Card -->
+    <div id="resultsCard" class="card hidden">
+      <h2>البيانات المستخرجة</h2>
+
+      <div class="date-row">
+        <label>التاريخ:</label>
+        <input type="date" id="dateInput">
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>المدفوع</th>
+              <th>الملاحظات</th>
+              <th>الاضافي</th>
+              <th>المدفوع من الاضافي</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="dataBody"></tbody>
+        </table>
+      </div>
+
+      <button class="add-row-btn" onclick="addRow()">+ إضافة صف</button>
+
+      <button id="submitBtn" class="submit-btn" onclick="submitToSheet()">
+        حفظ في Google Sheets
+      </button>
+      <div id="submitStatus" class="status"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
