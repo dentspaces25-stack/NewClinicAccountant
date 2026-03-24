@@ -8,6 +8,8 @@ let APPS_SCRIPT_URL = localStorage.getItem('apps_script_url') || '';
 // State
 // ============================================
 let selectedImageBase64 = null;
+let originalImageSrc = null;
+let cropper = null;
 let extractedRows = [];
 
 // ============================================
@@ -51,13 +53,31 @@ function handleImageUpload(input) {
   const reader = new FileReader();
   reader.onload = (e) => {
     const base64Full = e.target.result;
-    selectedImageBase64 = base64Full.split(',')[1]; // Remove data:image/...;base64, prefix
+    selectedImageBase64 = base64Full.split(',')[1];
+    originalImageSrc = base64Full;
 
     // Show preview
     const preview = document.getElementById('imagePreview');
     const previewContainer = document.getElementById('previewContainer');
     preview.src = base64Full;
     previewContainer.style.display = 'block';
+
+    // Destroy old cropper if exists
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+
+    // Initialize cropper
+    preview.onload = () => {
+      cropper = new Cropper(preview, {
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 1,
+        responsive: true,
+        background: false,
+      });
+    };
 
     // Enable extract button
     document.getElementById('extractBtn').disabled = false;
@@ -66,6 +86,47 @@ function handleImageUpload(input) {
     document.getElementById('resultsCard').classList.add('hidden');
   };
   reader.readAsDataURL(file);
+}
+
+function applyCrop() {
+  if (!cropper) return;
+
+  const canvas = cropper.getCroppedCanvas();
+  const croppedBase64 = canvas.toDataURL('image/jpeg', 0.9);
+  selectedImageBase64 = croppedBase64.split(',')[1];
+
+  // Replace preview with cropped image
+  cropper.destroy();
+  cropper = null;
+
+  const preview = document.getElementById('imagePreview');
+  preview.src = croppedBase64;
+
+  showStatus('extractStatus', 'success', 'تم قص الصورة بنجاح');
+  setTimeout(() => hideStatus('extractStatus'), 2000);
+}
+
+function resetCrop() {
+  if (!originalImageSrc) return;
+
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+
+  const preview = document.getElementById('imagePreview');
+  preview.src = originalImageSrc;
+  selectedImageBase64 = originalImageSrc.split(',')[1];
+
+  preview.onload = () => {
+    cropper = new Cropper(preview, {
+      viewMode: 1,
+      dragMode: 'move',
+      autoCropArea: 1,
+      responsive: true,
+      background: false,
+    });
+  };
 }
 
 // ============================================

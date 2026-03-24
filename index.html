@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>محاسب العيادة</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body>
   <div class="container">
@@ -45,7 +46,13 @@
       </div>
 
       <div id="previewContainer" class="preview-container">
-        <img id="imagePreview" alt="معاينة الصورة">
+        <div class="crop-container">
+          <img id="imagePreview" alt="معاينة الصورة">
+        </div>
+        <div class="crop-actions">
+          <button class="crop-btn" onclick="applyCrop()">قص الصورة</button>
+          <button class="crop-btn crop-btn-reset" onclick="resetCrop()">إعادة تعيين</button>
+        </div>
       </div>
 
       <button id="extractBtn" class="extract-btn" onclick="extractData()" disabled>
@@ -88,6 +95,7 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -133,16 +133,53 @@ h1 {
   display: none;
 }
 
-/* Image Preview */
+/* Image Preview & Cropper */
 .preview-container {
   margin-top: 12px;
   display: none;
 }
 
-.preview-container img {
-  max-width: 100%;
+.crop-container {
+  max-height: 400px;
+  overflow: hidden;
   border-radius: 8px;
   border: 1px solid #eee;
+}
+
+.crop-container img {
+  max-width: 100%;
+  display: block;
+}
+
+.crop-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.crop-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #8b5cf6;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.crop-btn:hover {
+  background: #7c3aed;
+}
+
+.crop-btn-reset {
+  background: #94a3b8;
+}
+
+.crop-btn-reset:hover {
+  background: #64748b;
 }
 
 /* Extract Button */
