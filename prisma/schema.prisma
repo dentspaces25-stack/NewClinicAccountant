@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DOCTOR
+  ADMIN
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model Doctor {
+  id             String    @id @default(cuid())
+  name           String
+  phone          String    @unique
+  email          String?   @unique
+  passwordHash   String
+  role           Role      @default(DOCTOR)
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  clinics   Clinic[]
+  tickets   Ticket[]
+  auditLogs AuditLog[]
+
+  @@index([phone])
+}
+
+model Clinic {
+  id        String   @id @default(cuid())
+  name      String
+  location  String
+  doctorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor        Doctor         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  patients      Patient[]
+  transactions  Transaction[]
+  customColumns CustomColumn[]
+
+  @@index([doctorId])
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  doctorId String
+  patients PatientTag[]
+
+  @@index([doctorId])
+}
+
+model Patient {
+  id                String       @id @default(cuid())
+  name              String
+  treatmentPlanLink String?
+  clinicId          String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  tags         PatientTag[]
+  transactions Transaction[]
+
+  @@index([clinicId])
+}
+
+model PatientTag {
+  patientId String
+  tagId     String
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([patientId, tagId])
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  date          DateTime
+  patientName   String
+  paid          Decimal  @default(0) @db.Decimal(10, 2)
+  notes         String?
+  extra         Decimal  @default(0) @db.Decimal(10, 2)
+  paidFromExtra Decimal  @default(0) @db.Decimal(10, 2)
+  customColumns Json?
+  source        String   @default("manual")
+  clinicId      String
+  patientId     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  clinic  Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId])
+  @@index([date])
+  @@index([clinicId, date])
+}
+
+model CustomColumn {
+  id       String @id @default(cuid())
+  clinicId String
+  name     String
+  type     String @default("text")
+  order    Int    @default(0)
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@unique([clinicId, name])
+  @@index([clinicId])
+}
+
+model Ticket {
+  id        String       @id @default(cuid())
+  subject   String
+  message   String
+  status    TicketStatus @default(OPEN)
+  doctorId  String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  doctor  Doctor        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  replies TicketReply[]
+
+  @@index([doctorId])
+  @@index([status])
+}
+
+model TicketReply {
+  id        String   @id @default(cuid())
+  message   String
+  isAdmin   Boolean  @default(false)
+  ticketId  String
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String?
+  entityId  String?
+  details   Json?
+  doctorId  String?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  doctor Doctor? @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+
+  @@index([doctorId])
+  @@index([action])
+  @@index([createdAt])
+}
