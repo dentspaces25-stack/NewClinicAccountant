@@ -8,11 +8,11 @@ async function main() {
   const adminPasswordHash = await bcrypt.hash("Admin@123", 12);
 
   const admin = await prisma.doctor.upsert({
-    where: { phone: "+201000000000" },
+    where: { phone: "01025356175" },
     update: {},
     create: {
       name: "System Admin",
-      phone: "+201000000000",
+      phone: "01025356175",
       email: "admin@clinic-accountant.com",
       passwordHash: adminPasswordHash,
       role: "ADMIN",
@@ -20,7 +20,7 @@ async function main() {
   });
 
   console.log("Admin user created/found:", admin.id);
-  console.log("Admin login: +201000000000 / Admin@123");
+  console.log("Admin login: 01025356175 / Admin@123");
   console.log("IMPORTANT: Change the admin password after first login!");
 }
 

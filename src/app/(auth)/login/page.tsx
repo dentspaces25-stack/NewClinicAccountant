@@ -106,7 +106,7 @@ export default function LoginPage() {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="1XXXXXXXXX"
+                  placeholder="01XXXXXXXXX"
                   value={phone}
                   onChange={(e) => { setPhone(e.target.value); setFieldErrors((p) => { const n = { ...p }; delete n.phone; return n; }); }}
                   required
