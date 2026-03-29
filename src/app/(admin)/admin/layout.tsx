@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
+import { AdminSidebar } from "@/components/layout/admin-sidebar";
 
 export default async function AdminLayout({
   children,
@@ -19,7 +20,12 @@ export default async function AdminLayout({
 
   return (
     <SessionProvider session={session}>
-      {children}
+      <div className="min-h-screen">
+        <AdminSidebar userName={session.user.name} />
+        <main className="lg:ms-64">
+          <div className="min-h-screen">{children}</div>
+        </main>
+      </div>
     </SessionProvider>
   );
 }
