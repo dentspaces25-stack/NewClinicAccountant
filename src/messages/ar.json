@@ -105,10 +105,32 @@
     "deletePatient": "حذف المريض",
     "patientName": "اسم المريض",
     "treatmentPlan": "رابط خطة العلاج",
+    "treatmentPlanHint": "الصق رابط Google Drive لملف PDF أو PPT. تأكد من ضبط المشاركة على \"أي شخص لديه الرابط\" حتى يعمل العارض.",
     "tags": "العلامات",
     "addTag": "إضافة علامة",
     "selectClinic": "اختر العيادة",
     "deleteConfirm": "هل أنت متأكد من حذف هذا المريض؟"
+  },
+  "patientProfile": {
+    "title": "ملف المريض",
+    "financialSummary": "الملخص المالي",
+    "totalTransactions": "المعاملات",
+    "paid": "إجمالي المدفوع",
+    "heldAmount": "المبلغ المعلق",
+    "treatmentPlan": "خطة العلاج",
+    "noTreatmentPlan": "لم يتم إضافة رابط خطة علاج بعد",
+    "addLink": "إضافة رابط",
+    "openLink": "فتح في تبويب جديد",
+    "editTreatmentPlan": "تعديل رابط خطة العلاج",
+    "driveHint": "الصق رابط Google Drive لملف PDF أو PPT. تأكد من ضبط المشاركة على \"أي شخص لديه الرابط\" حتى يعمل العارض المضمّن.",
+    "driveDetected": "تم اكتشاف رابط Google Drive — سيتم عرض العارض المضمّن",
+    "notDriveLinkWarning": "لا يبدو هذا رابط Google Drive. لن يعمل العارض المضمّن، لكن سيتم حفظ الرابط.",
+    "notDriveLink": "لا يمكن معاينة هذا الرابط مضمّناً. افتحه في تبويب جديد باستخدام الرابط أعلاه.",
+    "notes": "الملاحظات",
+    "addNote": "إضافة ملاحظة",
+    "notePlaceholder": "اكتب ملاحظة...",
+    "deleteNoteConfirm": "هل أنت متأكد من حذف هذه الملاحظة؟",
+    "transactions": "المعاملات"
   },
   "transactions": {
     "title": "المعاملات",
@@ -171,7 +193,8 @@
     "resolved": "تم الحل",
     "closed": "مغلقة",
     "yourReply": "ردك",
-    "adminReply": "رد الإدارة"
+    "adminReply": "رد الإدارة",
+    "you": "أنت"
   },
   "admin": {
     "title": "لوحة الإدارة",

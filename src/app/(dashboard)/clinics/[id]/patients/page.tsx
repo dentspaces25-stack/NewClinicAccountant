@@ -26,6 +26,7 @@ import {
   Users,
   Tag as TagIcon,
   X,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -334,9 +335,12 @@ export default function PatientsPage() {
                       className="hover:bg-teal-50/30 transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <span className="font-medium text-gray-900">
+                        <Link
+                          href={`/clinics/${clinicId}/patients/${patient.id}`}
+                          className="font-medium text-gray-900 hover:text-teal-700 hover:underline transition-colors"
+                        >
                           {patient.name}
-                        </span>
+                        </Link>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
@@ -428,9 +432,13 @@ export default function PatientsPage() {
                   type="url"
                   value={formLink}
                   onChange={(e) => setFormLink(e.target.value)}
-                  placeholder="https://..."
+                  placeholder="https://drive.google.com/file/d/..."
                   maxLength={2000}
                 />
+                <div className="flex items-start gap-1.5 rounded-lg bg-blue-50 border border-blue-200 p-2.5">
+                  <Info className="h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-700">{t("treatmentPlanHint")}</p>
+                </div>
               </div>
               <div className="space-y-3">
                 <Label className="flex items-center gap-1.5">

@@ -239,7 +239,7 @@ export default function AdminPage() {
                   {selectedTicket.replies.map((reply) => (
                     <div key={reply.id} className={`rounded-lg p-4 ${reply.isAdmin ? "bg-teal-50 border border-teal-200 ms-4" : "bg-gray-50 border border-gray-200 me-4"}`}>
                       <p className="text-xs font-semibold mb-1.5" style={{ color: reply.isAdmin ? "#0f766e" : "#6b7280" }}>
-                        {reply.isAdmin ? tt("adminReply") : tt("yourReply")}
+                        {reply.isAdmin ? tt("you") : selectedTicket.doctor?.name}
                       </p>
                       <p className="text-sm text-gray-700 whitespace-pre-wrap">{reply.message}</p>
                       <p className="text-xs text-gray-400 mt-2">{new Date(reply.createdAt).toLocaleString()}</p>

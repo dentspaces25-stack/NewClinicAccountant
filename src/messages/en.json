@@ -105,10 +105,32 @@
     "deletePatient": "Delete Patient",
     "patientName": "Patient Name",
     "treatmentPlan": "Treatment Plan Link",
+    "treatmentPlanHint": "Paste a Google Drive link to a PDF or PPT file. Make sure sharing is set to \"Anyone with the link\" for the viewer to work.",
     "tags": "Tags",
     "addTag": "Add Tag",
     "selectClinic": "Select Clinic",
     "deleteConfirm": "Are you sure you want to delete this patient?"
+  },
+  "patientProfile": {
+    "title": "Patient Profile",
+    "financialSummary": "Financial Summary",
+    "totalTransactions": "Transactions",
+    "paid": "Total Paid",
+    "heldAmount": "Held Amount",
+    "treatmentPlan": "Treatment Plan",
+    "noTreatmentPlan": "No treatment plan link added yet",
+    "addLink": "Add Link",
+    "openLink": "Open in new tab",
+    "editTreatmentPlan": "Edit Treatment Plan Link",
+    "driveHint": "Paste a Google Drive link to a PDF or PPT file. Make sure sharing is set to \"Anyone with the link\" for the embedded viewer to work.",
+    "driveDetected": "Google Drive link detected — embedded viewer will be shown",
+    "notDriveLinkWarning": "This doesn't look like a Google Drive link. The embedded viewer won't work, but the link will still be saved.",
+    "notDriveLink": "This link cannot be previewed inline. Open it in a new tab using the link above.",
+    "notes": "Notes",
+    "addNote": "Add Note",
+    "notePlaceholder": "Write a note...",
+    "deleteNoteConfirm": "Are you sure you want to delete this note?",
+    "transactions": "Transactions"
   },
   "transactions": {
     "title": "Transactions",
@@ -171,7 +193,8 @@
     "resolved": "Resolved",
     "closed": "Closed",
     "yourReply": "Your Reply",
-    "adminReply": "Admin Reply"
+    "adminReply": "Admin Reply",
+    "you": "You"
   },
   "admin": {
     "title": "Admin Panel",

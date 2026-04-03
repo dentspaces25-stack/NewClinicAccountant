@@ -74,8 +74,21 @@ model Patient {
   clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   tags         PatientTag[]
   transactions Transaction[]
+  notes        PatientNote[]
 
   @@index([clinicId])
+}
+
+model PatientNote {
+  id        String   @id @default(cuid())
+  content   String
+  patientId String
+  createdAt DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([patientId, createdAt])
 }
 
 model PatientTag {
