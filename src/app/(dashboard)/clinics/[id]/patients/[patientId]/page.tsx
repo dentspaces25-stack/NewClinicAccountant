@@ -29,7 +29,12 @@ import {
   ChevronRight,
   Link as LinkIcon,
   Info,
+  Plus,
+  Edit2,
+  Save,
+  X,
 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import {
   PieChart,
   Pie,
@@ -105,6 +110,23 @@ export default function PatientProfilePage() {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [linkInput, setLinkInput] = useState("");
   const [savingLink, setSavingLink] = useState(false);
+
+  // Quick-add transaction
+  const [txDialogOpen, setTxDialogOpen] = useState(false);
+  const [txDate, setTxDate] = useState("");
+  const [txPaid, setTxPaid] = useState("0");
+  const [txExtra, setTxExtra] = useState("0");
+  const [txPaidFromExtra, setTxPaidFromExtra] = useState("0");
+  const [txNotes, setTxNotes] = useState("");
+  const [savingTx, setSavingTx] = useState(false);
+
+  // Inline edit transaction
+  const [editingTxId, setEditingTxId] = useState<string | null>(null);
+  const [editTxPaid, setEditTxPaid] = useState("0");
+  const [editTxExtra, setEditTxExtra] = useState("0");
+  const [editTxPaidFromExtra, setEditTxPaidFromExtra] = useState("0");
+  const [editTxNotes, setEditTxNotes] = useState("");
+  const [savingEditTx, setSavingEditTx] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
@@ -202,6 +224,91 @@ export default function PatientProfilePage() {
     setLinkDialogOpen(true);
   }
 
+  function openTxDialog() {
+    setTxDate(new Date().toISOString().split("T")[0]);
+    setTxPaid("0");
+    setTxExtra("0");
+    setTxPaidFromExtra("0");
+    setTxNotes("");
+    setTxDialogOpen(true);
+  }
+
+  function startEditTx(tx: Transaction) {
+    setEditingTxId(tx.id);
+    setEditTxPaid(tx.paid);
+    setEditTxExtra(tx.extra);
+    setEditTxPaidFromExtra(tx.paidFromExtra);
+    setEditTxNotes(tx.notes || "");
+  }
+
+  function cancelEditTx() {
+    setEditingTxId(null);
+  }
+
+  async function handleSaveEditTx(txId: string) {
+    setSavingEditTx(true);
+    try {
+      const res = await fetch(`/api/clinics/${clinicId}/transactions/${txId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paid: editTxPaid,
+          extra: editTxExtra,
+          paidFromExtra: editTxPaidFromExtra,
+          notes: editTxNotes || null,
+        }),
+      });
+      if (res.ok) {
+        setEditingTxId(null);
+        fetchTransactions(txPage);
+        fetchProfile();
+      }
+    } catch { /* ignore */ } finally {
+      setSavingEditTx(false);
+    }
+  }
+
+  async function handleDeleteTx(txId: string) {
+    if (!confirm(tt("deleteConfirm"))) return;
+    try {
+      const res = await fetch(`/api/clinics/${clinicId}/transactions/${txId}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchTransactions(txPage);
+        fetchProfile();
+      }
+    } catch { /* ignore */ }
+  }
+
+  async function handleQuickAddTransaction() {
+    if (!patient) return;
+    setSavingTx(true);
+    try {
+      const res = await fetch(`/api/clinics/${clinicId}/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: txDate,
+          patientName: patient.name,
+          patientId,
+          paid: txPaid,
+          extra: txExtra,
+          paidFromExtra: txPaidFromExtra,
+          notes: txNotes || undefined,
+          source: "manual",
+        }),
+      });
+      if (res.ok) {
+        setTxDialogOpen(false);
+        setTxPage(1);
+        fetchTransactions(1);
+        // Refresh financials
+        fetchProfile();
+      }
+    } catch { /* ignore */ } finally {
+      setSavingTx(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50/50">
@@ -254,86 +361,30 @@ export default function PatientProfilePage() {
           ))}
         </div>
 
-        {/* ── Section 1: Treatment Plan + Financial Summary ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* Treatment Plan */}
-          <Card className="lg:col-span-1">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <span className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-teal-600" />
-                  {t("treatmentPlan")}
-                </span>
-                <Button variant="ghost" size="sm" onClick={openLinkDialog} className="h-7 text-xs">
-                  {tc("edit")}
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {patient.treatmentPlanLink ? (
-                <>
-                  <a
-                    href={patient.treatmentPlanLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700 hover:underline break-all"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                    {t("openLink")}
-                  </a>
-
-                  {/* Embedded Drive viewer */}
-                  {embedUrl ? (
-                    <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                      <iframe
-                        src={embedUrl}
-                        className="w-full"
-                        style={{ height: "480px" }}
-                        allow="autoplay"
-                        title={t("treatmentPlan")}
-                      />
-                    </div>
-                  ) : (
-                    <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
-                      <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-700">{t("notDriveLink")}</p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="flex flex-col items-center py-6 text-center text-gray-400 gap-2">
-                  <LinkIcon className="h-8 w-8 text-gray-300" />
-                  <p className="text-sm">{t("noTreatmentPlan")}</p>
-                  <Button variant="outline" size="sm" onClick={openLinkDialog}>{t("addLink")}</Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Financial Summary */}
-          <Card className="lg:col-span-2">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <DollarSign className="h-5 w-5 text-teal-600" />
-                {t("financialSummary")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+        {/* ── Section 1: Financial Summary ── */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <DollarSign className="h-5 w-5 text-teal-600" />
+              {t("financialSummary")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col lg:flex-row gap-6 items-center">
               {/* Stat chips */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="rounded-xl bg-gray-50 border border-gray-200 p-3 text-center">
-                  <p className="text-2xl font-bold text-gray-900">{financials.totalTransactions}</p>
+              <div className="grid grid-cols-3 gap-3 w-full lg:w-auto lg:flex-1">
+                <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 text-center">
+                  <p className="text-3xl font-bold text-gray-900">{financials.totalTransactions}</p>
                   <p className="text-xs text-gray-500 mt-1">{t("totalTransactions")}</p>
                 </div>
-                <div className="rounded-xl bg-teal-50 border border-teal-200 p-3 text-center">
-                  <p className="text-2xl font-bold text-teal-700">
+                <div className="rounded-xl bg-teal-50 border border-teal-200 p-4 text-center">
+                  <p className="text-3xl font-bold text-teal-700" suppressHydrationWarning>
                     {financials.totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </p>
                   <p className="text-xs text-teal-600 mt-1">{t("paid")}</p>
                 </div>
-                <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-center">
-                  <p className="text-2xl font-bold text-amber-700">
+                <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-center">
+                  <p className="text-3xl font-bold text-amber-700" suppressHydrationWarning>
                     {financials.heldAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </p>
                   <p className="text-xs text-amber-600 mt-1">{t("heldAmount")}</p>
@@ -342,7 +393,7 @@ export default function PatientProfilePage() {
 
               {/* Pie chart */}
               {pieData.length > 0 ? (
-                <div className="h-[220px]">
+                <div className="h-[200px] w-full lg:w-[280px] shrink-0">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -350,7 +401,7 @@ export default function PatientProfilePage() {
                         cx="50%"
                         cy="50%"
                         innerRadius={55}
-                        outerRadius={85}
+                        outerRadius={80}
                         paddingAngle={3}
                         dataKey="value"
                       >
@@ -369,13 +420,67 @@ export default function PatientProfilePage() {
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400 text-center py-8">{tc("noData")}</p>
+                <p className="text-sm text-gray-400 text-center py-4">{tc("noData")}</p>
               )}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* ── Section 2: Notes ── */}
+        {/* ── Section 2: Treatment Plan (full width for viewer) ── */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between text-base">
+              <span className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-teal-600" />
+                {t("treatmentPlan")}
+              </span>
+              <div className="flex items-center gap-2">
+                {patient.treatmentPlanLink && (
+                  <a
+                    href={patient.treatmentPlanLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700 hover:underline"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    {t("openLink")}
+                  </a>
+                )}
+                <Button variant="ghost" size="sm" onClick={openLinkDialog} className="h-7 text-xs">
+                  {tc("edit")}
+                </Button>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {patient.treatmentPlanLink ? (
+              embedUrl ? (
+                <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                  <iframe
+                    src={embedUrl}
+                    className="w-full"
+                    style={{ height: "680px" }}
+                    allow="autoplay"
+                    title={t("treatmentPlan")}
+                  />
+                </div>
+              ) : (
+                <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 flex items-start gap-2">
+                  <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-sm text-amber-700">{t("notDriveLink")}</p>
+                </div>
+              )
+            ) : (
+              <div className="flex flex-col items-center py-12 text-center text-gray-400 gap-3">
+                <LinkIcon className="h-12 w-12 text-gray-300" />
+                <p className="text-sm">{t("noTreatmentPlan")}</p>
+                <Button variant="outline" size="sm" onClick={openLinkDialog}>{t("addLink")}</Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ── Section 3: Notes ── */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -435,13 +540,19 @@ export default function PatientProfilePage() {
           </CardContent>
         </Card>
 
-        {/* ── Section 3: Transactions Table ── */}
+        {/* ── Section 4: Transactions Table ── */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Receipt className="h-5 w-5 text-teal-600" />
-              {t("transactions")}
-              {txTotal > 0 && <Badge variant="secondary" className="text-xs">{txTotal}</Badge>}
+            <CardTitle className="flex items-center justify-between text-base">
+              <span className="flex items-center gap-2">
+                <Receipt className="h-5 w-5 text-teal-600" />
+                {t("transactions")}
+                {txTotal > 0 && <Badge variant="secondary" className="text-xs">{txTotal}</Badge>}
+              </span>
+              <Button size="sm" onClick={openTxDialog} className="gap-1.5">
+                <Plus className="h-4 w-4" />
+                {tt("addTransaction")}
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -450,9 +561,13 @@ export default function PatientProfilePage() {
                 <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
               </div>
             ) : transactions.length === 0 ? (
-              <div className="flex flex-col items-center py-10 text-gray-400 gap-2">
+              <div className="flex flex-col items-center py-10 text-gray-400 gap-3">
                 <Receipt className="h-10 w-10 text-gray-300" />
                 <p className="text-sm">{tc("noData")}</p>
+                <Button variant="outline" size="sm" onClick={openTxDialog} className="gap-1.5">
+                  <Plus className="h-4 w-4" />
+                  {tt("addTransaction")}
+                </Button>
               </div>
             ) : (
               <>
@@ -466,29 +581,77 @@ export default function PatientProfilePage() {
                         <th className="px-3 py-2.5 text-start font-medium text-gray-600">{tt("paidFromExtra")}</th>
                         <th className="px-3 py-2.5 text-start font-medium text-gray-600">{tt("notes")}</th>
                         <th className="px-3 py-2.5 text-start font-medium text-gray-600">{tt("source")}</th>
+                        <th className="px-3 py-2.5 w-20" />
                       </tr>
                     </thead>
                     <tbody>
                       {transactions.map((tx) => (
-                        <tr key={tx.id} className="border-b border-gray-100 hover:bg-gray-50/50">
-                          <td className="px-3 py-2.5 text-gray-500 whitespace-nowrap" suppressHydrationWarning>
-                            {new Date(tx.date).toLocaleDateString()}
-                          </td>
-                          <td className="px-3 py-2.5 font-semibold text-teal-700" suppressHydrationWarning>
-                            {Number(tx.paid).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="px-3 py-2.5 text-gray-600" suppressHydrationWarning>
-                            {Number(tx.extra).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="px-3 py-2.5 text-gray-600" suppressHydrationWarning>
-                            {Number(tx.paidFromExtra).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="px-3 py-2.5 text-gray-500 max-w-[200px] truncate">{tx.notes || "—"}</td>
-                          <td className="px-3 py-2.5">
-                            <Badge variant={tx.source === "scan" ? "default" : "secondary"}>
-                              {tx.source === "scan" ? tt("scan") : tt("manual")}
-                            </Badge>
-                          </td>
+                        <tr key={tx.id} className="border-b border-gray-100 hover:bg-gray-50/50 group">
+                          {editingTxId === tx.id ? (
+                            <>
+                              <td className="px-3 py-1.5 text-gray-500 text-xs whitespace-nowrap" suppressHydrationWarning>
+                                {new Date(tx.date).toLocaleDateString()}
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <Input type="number" min="0" step="0.01" value={editTxPaid} onChange={(e) => setEditTxPaid(e.target.value)} className="h-8 text-sm w-24" />
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <Input type="number" min="0" step="0.01" value={editTxExtra} onChange={(e) => setEditTxExtra(e.target.value)} className="h-8 text-sm w-24" />
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <Input type="number" min="0" step="0.01" value={editTxPaidFromExtra} onChange={(e) => setEditTxPaidFromExtra(e.target.value)} className="h-8 text-sm w-24" />
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <Input value={editTxNotes} onChange={(e) => setEditTxNotes(e.target.value)} className="h-8 text-sm" placeholder="—" />
+                              </td>
+                              <td className="px-3 py-1.5">
+                                <Badge variant={tx.source === "scan" ? "default" : "secondary"}>
+                                  {tx.source === "scan" ? tt("scan") : tt("manual")}
+                                </Badge>
+                              </td>
+                              <td className="px-2 py-1.5">
+                                <div className="flex gap-1">
+                                  <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleSaveEditTx(tx.id)} disabled={savingEditTx}>
+                                    {savingEditTx ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={cancelEditTx}>
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="px-3 py-2.5 text-gray-500 whitespace-nowrap" suppressHydrationWarning>
+                                {new Date(tx.date).toLocaleDateString()}
+                              </td>
+                              <td className="px-3 py-2.5 font-semibold text-teal-700" suppressHydrationWarning>
+                                {Number(tx.paid).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-3 py-2.5 text-gray-600" suppressHydrationWarning>
+                                {Number(tx.extra).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-3 py-2.5 text-gray-600" suppressHydrationWarning>
+                                {Number(tx.paidFromExtra).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-3 py-2.5 text-gray-500 max-w-[200px] truncate">{tx.notes || "—"}</td>
+                              <td className="px-3 py-2.5">
+                                <Badge variant={tx.source === "scan" ? "default" : "secondary"}>
+                                  {tx.source === "scan" ? tt("scan") : tt("manual")}
+                                </Badge>
+                              </td>
+                              <td className="px-2 py-2.5">
+                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-500 hover:text-teal-700" onClick={() => startEditTx(tx)}>
+                                    <Edit2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-500 hover:text-red-600" onClick={() => handleDeleteTx(tx.id)}>
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -519,6 +682,58 @@ export default function PatientProfilePage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Quick Add Transaction Dialog ── */}
+      <Dialog open={txDialogOpen} onOpenChange={setTxDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5 text-teal-600" />
+              {tt("addTransaction")}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Patient badge — pre-filled, read-only */}
+          <div className="rounded-lg bg-teal-50 border border-teal-200 px-3 py-2 text-sm text-teal-800 font-medium">
+            {patient?.name}
+          </div>
+
+          <div className="space-y-4 py-1">
+            <div className="space-y-1.5">
+              <Label>{tt("date")}</Label>
+              <Input type="date" value={txDate} onChange={(e) => setTxDate(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label>{tt("paid")}</Label>
+                <Input type="number" min="0" step="0.01" value={txPaid} onChange={(e) => setTxPaid(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>{tt("extra")}</Label>
+                <Input type="number" min="0" step="0.01" value={txExtra} onChange={(e) => setTxExtra(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>{tt("paidFromExtra")}</Label>
+                <Input type="number" min="0" step="0.01" value={txPaidFromExtra} onChange={(e) => setTxPaidFromExtra(e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>{tt("notes")}</Label>
+              <Input value={txNotes} onChange={(e) => setTxNotes(e.target.value)} placeholder={tt("notes") + "..."} maxLength={500} />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTxDialogOpen(false)} disabled={savingTx}>
+              {tc("cancel")}
+            </Button>
+            <Button onClick={handleQuickAddTransaction} disabled={savingTx || !txDate}>
+              {savingTx && <Loader2 className="h-4 w-4 animate-spin" />}
+              {tc("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Treatment Plan Link Dialog ── */}
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
