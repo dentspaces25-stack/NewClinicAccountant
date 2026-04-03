@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { User, Lock, Globe, HelpCircle, LogOut } from "lucide-react";
+import { User, Lock, Globe, LogOut } from "lucide-react";
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
@@ -205,25 +205,6 @@ export default function SettingsPage() {
                 {t("english")}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Support Ticket */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <HelpCircle className="h-5 w-5 text-teal-600" />
-              {t("openTicket")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button
-              variant="outline"
-              onClick={() => router.push("/tickets?new=true")}
-            >
-              <HelpCircle className="h-4 w-4" />
-              {t("openTicket")}
-            </Button>
           </CardContent>
         </Card>
 
