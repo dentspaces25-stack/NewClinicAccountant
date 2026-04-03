@@ -491,3 +491,32 @@ const [items, total] = await Promise.all([
 ]);
 return NextResponse.json({ items, pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) } });
 ```
+
+---
+
+## 16. External Integration — DentSpace
+
+This project's feature set is being embedded into a **separate product called DentSpace** as a sub-section of the doctor experience. This section documents the integration context so future sessions understand the relationship.
+
+### What was ported
+The entire doctor-facing feature set of this app is being re-implemented inside DentSpace under a new sidebar section called **"External Clinics Management"**, visible to the doctor role only (hidden from admin and all other roles).
+
+### Sub-tabs inside "External Clinics Management" in DentSpace
+1. **Clinics** — create/manage external clinics
+2. **Patients** — per-clinic patient list with tags and treatment plan links
+3. **Patient Profile** — financial summary (stats + donut chart), Drive embed viewer, notes timeline, transactions table with inline edit/delete and quick-add
+4. **Transactions** — global view with manual entry and AI OCR scan
+5. **Support Tickets** — doctor↔admin messaging with status management
+
+### Key rules for DentSpace integration
+- Follow DentSpace's own DB schema, auth, routing, and component conventions — do NOT copy code from this project
+- Rebuild from scratch using DentSpace's patterns; this project is the feature reference only
+- The financial logic, Drive embed detection, and UX patterns are the portable spec:
+  - `heldAmount = SUM(extra) - SUM(paidFromExtra)`, clamped ≥ 0
+  - Drive embed: replace share URL suffix with `/preview` for iframe
+  - Transaction sources: `"manual"` | `"scan"`
+  - Patient notes are append-only (no edit, delete only)
+  - Inline edit/delete on transactions must refresh both table and financial summary
+
+### Integration prompt
+A ready-to-use prompt for starting the DentSpace implementation session is documented in the conversation history of this project (April 2026).
